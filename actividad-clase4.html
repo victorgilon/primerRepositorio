@@ -79,28 +79,49 @@ th {
 <h1>🌐 Actividad Clase 4</h1>
 <h2>Comunicación entre Servicios + REST + Eventos + Service Discovery</h2>
 
-<p><strong>Equipo:</strong> ____________________</p>
-<p><strong>Proyecto:</strong> ____________________</p>
+<p><strong>Equipo:</strong> victor alfonso gilon pino</p>
+<p><strong>Proyecto:</strong> Gestion de turnos Bancos</p>
 
 <div class="section">
 <h2>🪜 1. Interacciones entre Servicios</h2>
 
 <p><strong>Interacción 1</strong></p>
 <label>Servicio que envía:</label>
-<div class="line"></div>
+<div class="line"> Gestion de turno</div>
 <label>Servicio que recibe:</label>
-<div class="line"></div>
+<div class="line"> Notificaciones</div>
 <label>Información enviada:</label>
-<div class="line"></div>
+<div class="line">id del turno, numero del turno, nombre del cliente, sucursal, estado, fecha</div>
 <label>¿Qué sucede si no responde?</label>
-<div class="line"></div>
+<div class="line"> Como es comunicación por evento (asíncrona): El turno se crea igual, 
+El sistema sigue funcionando, La notificación podría reintentarse automáticamente,
+No afecta la operación principal</div>
 
 <p><strong>Interacción 2</strong></p>
-<div class="line"></div>
+<label>Servicio que envía:</label>
+<div class="line"> Gestión de Turnos</div>
+<label>Servicio que recibe:</label>
+<div class="line"> Servicio de Usuario</div>
+<label>Información enviada:</label>
+<div class="line">ID del usuario, Solicitud de validación, Rol </div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line"> Como es comunicación REST síncrona: No se puede crear el turno, 
+Se devuelve error al cliente, La operación se detiene</div>
+
 
 <p><strong>Interacción 3</strong></p>
-<div class="line"></div>
-</div>
+<label>Servicio que envía:</label>
+<div class="line"> Gestión de Turnos</div>
+<label>Servicio que recibe:</label>
+<div class="line"> Servicio de Reportes</div>
+<label>Información enviada:</label>
+<div class="line">Evento TurnoFinalizado, Tiempo de espera,
+Tiempo de atención
+
+Estado final </div>
+<label>¿Qué sucede si no responde?</label>
+<div class="line">Como es asíncrono: El turno se finaliza igual, Los reportes pueden actualizarse después,
+Se puede reintentar el evento</div>
 
 <div class="section">
 <h2>🪜 2. REST o Eventos</h2>
@@ -113,22 +134,22 @@ th {
 <th>¿Por qué?</th>
 </tr>
 <tr>
-<td>1</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Turnos -> Notificaciones</td>
+<td>NO</td>
+<td>SI</td>
+<td>Solo se informa que ocurrió algo (TurnoCreado, TurnoFinalizado). No necesita respuesta inmediata.</td>
 </tr>
 <tr>
-<td>2</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Turnos -> Usuario</td>
+<td>SI</td>
+<td>NO</td>
+<td>Necesita validar si el usuario está activo antes de crear el turno. Es una operación crítica.</td>
 </tr>
 <tr>
-<td>3</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Turnos -> Reportes</td>
+<td>NO</td>
+<td>SI</td>
+<td>Reportes solo reacciona cuando un turno cambia de estado. No bloquea el flujo principal.</td>
 </tr>
 </table>
 </div>
@@ -144,55 +165,64 @@ th {
 <th>Justificación</th>
 </tr>
 <tr>
-<td>1</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Turnos -> Notificaciones</td>
+<td>NO</td>
+<td>SI</td>
+<td>La notificación puede enviarse en segundo plano sin afectar la creación del turno.</td>
 </tr>
 <tr>
-<td>2</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Turnos -> Usuario</td>
+<td>SI</td>
+<td>NO</td>
+<td>Si no se valida el usuario, no se puede crear el turno. Debe responder inmediatamente.</td>
 </tr>
 <tr>
-<td>3</td>
-<td></td>
-<td></td>
-<td></td>
+<td>Turnos -> Reportes</td>
+<td>NO</td>
+<td>SI</td>
+<td>Los reportes pueden actualizarse después sin impactar la operación en tiempo real.</td>
 </tr>
 </table>
 </div>
 
 <div class="section">
 <h2>🪜 4. Eventos Importantes del Sistema</h2>
-1️⃣ ______________________________________<br><br>
-2️⃣ ______________________________________<br><br>
-3️⃣ ______________________________________
+1️⃣ Turno Creado <br><br>
+2️⃣ Turno En Atencion<br><br>
+3️⃣ Turno Finalizado
 </div>
 
 <div class="section">
 <h2>🪜 5. Análisis de Fallos</h2>
 <label>Servicio más crítico:</label>
-<div class="line"></div>
+<div class="line">Servicio de Gestión de Turnos</div>
 <label>¿Qué pasaría si falla?</label>
-<div class="line"></div>
+<div class="line">No se pueden crear nuevos turnos,No se pueden llamar turnos, 
+No se pueden finalizar atenciones, Se detiene la operación en sucursales, 
+Se afecta la experiencia del cliente</div>
 <label>¿El sistema debe detenerse o continuar?</label>
-<div class="line"></div>
+<div class="line">Si falla Gestión de Turnos El sistema prácticamente se detiene.</div>
 <label>¿Cómo podrían manejar este fallo?</label>
-<div class="line"></div>
+<div class="line">Réplicas del servicio (Alta disponibilidad)</div>
 </div>
 
 <div class="section">
 <h2>🪜 6. Service Discovery</h2>
 <label>¿Qué problema ocurre si cambia la IP de un servicio?</label>
-<div class="line"></div>
+<div class="line">Con service discovery se deja abierto la comunicacion y se redirije a otro nodo</div>
 <label>¿Cómo sabría un servicio dónde encontrar otro?</label>
-<div class="line"></div>
+<div class="line">Con Service Discovery:Cada servicio se registra automáticamente cuando inicia.
+El sistema guarda su: Nombre lógico (ej: servicio-usuarios), IP actual, Puerto
+Estado (activo/inactivo)</div>
 <label>¿Por qué sería útil Service Discovery?</label>
-<div class="line"></div>
+<div class="line">En sistemas distribuidos es útil porque:  Las IP pueden cambiar dinámicamente, 
+Permite escalabilidad automática, Evita configuraciones manuales, Permite balanceo de carga, 
+Aumenta tolerancia a fallos</div>
 <label>¿Dónde lo aplicarían en su sistema?</label>
-<div class="line"></div>
+<div class="line">En BEVS TurnoBank, lo aplicaríamos entre los servicios que se comunican por REST:
+Gestión de Turnos -> Usuario, 
+Autenticación -> Usuario, 
+Gestión de Turnos -> Sucursales</div>
 </div>
 
 <div class="section">
